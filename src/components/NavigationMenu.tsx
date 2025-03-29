@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, CheckSquare, Calendar, Settings, List, Brain } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Calendar, Settings, List, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -12,7 +12,7 @@ const NavigationMenu = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const routes = [
-    { name: 'Home', path: '/', icon: Home },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Tasks', path: '/tasks', icon: CheckSquare },
     { name: 'Scheduled', path: '/scheduled', icon: Calendar },
     { name: 'Categories', path: '/categories', icon: List },
