@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaskStore } from '@/store/taskStore';
@@ -345,7 +344,8 @@ const HomePage = () => {
       </div>
 
       {/* CSS animations */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.05); }
@@ -377,7 +377,8 @@ const HomePage = () => {
         .animated-button:hover::before {
           transform: translateX(100%);
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
