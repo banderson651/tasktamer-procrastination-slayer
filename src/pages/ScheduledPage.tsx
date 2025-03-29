@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useTaskStore } from '@/store/taskStore';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import TaskCard from '@/components/TaskCard';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Plus, Calendar as CalendarIcon } from 'lucide-react';
+import { Task } from '@/types/task';
 
 const ScheduledPage = () => {
   const navigate = useNavigate();
@@ -78,6 +78,17 @@ const ScheduledPage = () => {
     const dateA = new Date(a.dueDate!);
     const dateB = new Date(b.dueDate!);
     return dateA.getTime() - dateB.getTime();
+  });
+
+  // Group upcoming tasks by date
+  const groupedUpcomingTasks: Record<string, Task[]> = {};
+  upcomingTasks.forEach(task => {
+    if (!task.dueDate) return;
+    const dateStr = format(new Date(task.dueDate), 'yyyy-MM-dd');
+    if (!groupedUpcomingTasks[dateStr]) {
+      groupedUpcomingTasks[dateStr] = [];
+    }
+    groupedUpcomingTasks[dateStr].push(task);
   });
 
   return (
@@ -175,14 +186,7 @@ const ScheduledPage = () => {
             <TabsContent value="upcoming">
               {upcomingTasks.length > 0 ? (
                 <div className="space-y-6">
-                  {upcomingTasks.reduce((groups, task) => {
-                    const dateStr = format(new Date(task.dueDate!), 'yyyy-MM-dd');
-                    if (!groups[dateStr]) {
-                      groups[dateStr] = [];
-                    }
-                    groups[dateStr].push(task);
-                    return groups;
-                  }, {} as Record<string, typeof upcomingTasks>).map((tasks, dateStr) => (
+                  {Object.entries(groupedUpcomingTasks).map(([dateStr, tasks]) => (
                     <div key={dateStr}>
                       <h3 className="font-medium mb-3">
                         {format(new Date(tasks[0].dueDate!), 'EEEE, MMMM d')}
