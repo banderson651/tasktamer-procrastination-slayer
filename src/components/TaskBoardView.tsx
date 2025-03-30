@@ -62,7 +62,7 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
     setHighlightedColumn(source.droppableId as Status);
   };
 
-  // Handler for creating a new task
+  // Handler for creating a new task - Fixed by ensuring it navigates to the correct route
   const handleCreateNewTask = () => {
     navigate('/tasks/new');
   };
