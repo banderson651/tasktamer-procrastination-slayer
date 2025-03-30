@@ -6,10 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useOpenRouterStore } from '@/store/openRouterStore';
 import { getOpenRouterService } from '@/services/openRouterService';
-import { OpenRouterCompletionResponse } from '@/types/openrouter';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from 'sonner';
-import { Brain, Loader2, Check, AlertCircle, Sparkles, ChevronRight } from 'lucide-react';
+import { Brain, Loader2, AlertCircle, Sparkles, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface AITaskAssistantProps {
@@ -159,7 +158,7 @@ const AITaskAssistant = ({ onTasksCreated }: AITaskAssistantProps) => {
       )}
       
       {generatedTasks.length > 0 && (
-        <div className="animate-fade-in">
+        <div className="animate-in fade-in duration-300">
           <Separator className="my-4" />
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -171,7 +170,7 @@ const AITaskAssistant = ({ onTasksCreated }: AITaskAssistantProps) => {
               {generatedTasks.map((task, index) => (
                 <div 
                   key={index} 
-                  className="p-3 bg-background rounded-md border flex items-start gap-2 animate-fade-in"
+                  className="p-3 bg-background rounded-md border flex items-start gap-2 animate-in fade-in duration-300 slide-in-from-bottom-3"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="bg-primary/10 text-primary rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -189,17 +188,6 @@ const AITaskAssistant = ({ onTasksCreated }: AITaskAssistantProps) => {
               </div>
             </CardContent>
           </Card>
-          
-          <style jsx>{`
-            @keyframes fade-in {
-              from { opacity: 0; transform: translateY(10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            
-            .animate-fade-in {
-              animation: fade-in 0.3s ease-out forwards;
-            }
-          `}</style>
         </div>
       )}
     </div>

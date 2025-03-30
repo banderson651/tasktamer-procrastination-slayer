@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 export const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
 export class OpenRouterService {
-  private apiKey: string;
+  // Changed from private to public to allow access in getOpenRouterService
+  apiKey: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
