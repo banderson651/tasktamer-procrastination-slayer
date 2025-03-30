@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TaskCard from '@/components/TaskCard';
-import { Plus, Search, SlidersHorizontal } from 'lucide-react';
+import TaskBoardView from '@/components/TaskBoardView';
+import { Plus, Search, SlidersHorizontal, LayoutGrid, List } from 'lucide-react';
 import { useState } from 'react';
 
 const TasksPage = () => {
@@ -13,6 +14,7 @@ const TasksPage = () => {
   const { tasks } = useTaskStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
   
   const incompleteTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
@@ -81,63 +83,86 @@ const TasksPage = () => {
             <option value="high">High</option>
             <option value="urgent">Urgent</option>
           </select>
+          
+          <div className="flex border rounded-md">
+            <Button 
+              variant={viewMode === 'list' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-r-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant={viewMode === 'board' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('board')}
+              className="rounded-l-none"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
       
-      <Tabs defaultValue="active">
-        <TabsList className="mb-6">
-          <TabsTrigger value="active">
-            Active ({filteredIncompleteTasks.length})
-          </TabsTrigger>
-          <TabsTrigger value="completed">
-            Completed ({filteredCompletedTasks.length})
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="active">
-          {filteredIncompleteTasks.length > 0 ? (
-            <div className="task-grid">
-              {filteredIncompleteTasks.map(task => (
-                <TaskCard key={task.id} task={task} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-8 border rounded-lg">
-              <h3 className="text-lg font-medium mb-2">No active tasks found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery || selectedPriority !== 'all' 
-                  ? "Try different search or filter options" 
-                  : "You don't have any active tasks"
-                }
-              </p>
-              <Button onClick={() => navigate('/tasks/new')}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add New Task
-              </Button>
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="completed">
-          {filteredCompletedTasks.length > 0 ? (
-            <div className="task-grid">
-              {filteredCompletedTasks.map(task => (
-                <TaskCard key={task.id} task={task} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-8 border rounded-lg">
-              <h3 className="text-lg font-medium">No completed tasks found</h3>
-              <p className="text-muted-foreground">
-                {searchQuery || selectedPriority !== 'all' 
-                  ? "Try different search or filter options" 
-                  : "Complete some tasks to see them here"
-                }
-              </p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      {viewMode === 'board' ? (
+        <TaskBoardView tasks={filteredIncompleteTasks} />
+      ) : (
+        <Tabs defaultValue="active">
+          <TabsList className="mb-6">
+            <TabsTrigger value="active">
+              Active ({filteredIncompleteTasks.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+              Completed ({filteredCompletedTasks.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active">
+            {filteredIncompleteTasks.length > 0 ? (
+              <div className="task-grid">
+                {filteredIncompleteTasks.map(task => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 border rounded-lg">
+                <h3 className="text-lg font-medium mb-2">No active tasks found</h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchQuery || selectedPriority !== 'all' 
+                    ? "Try different search or filter options" 
+                    : "You don't have any active tasks"
+                  }
+                </p>
+                <Button onClick={() => navigate('/tasks/new')}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New Task
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="completed">
+            {filteredCompletedTasks.length > 0 ? (
+              <div className="task-grid">
+                {filteredCompletedTasks.map(task => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 border rounded-lg">
+                <h3 className="text-lg font-medium">No completed tasks found</h3>
+                <p className="text-muted-foreground">
+                  {searchQuery || selectedPriority !== 'all' 
+                    ? "Try different search or filter options" 
+                    : "Complete some tasks to see them here"
+                  }
+                </p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Task, SubTask, Priority } from '@/types/task';
+import { Task, SubTask, Priority, Status, Label } from '@/types/task';
 
 interface TaskState {
   tasks: Task[];
@@ -13,6 +13,13 @@ interface TaskState {
   updateSubtask: (taskId: string, subtaskId: string, updates: Partial<SubTask>) => void;
   deleteSubtask: (taskId: string, subtaskId: string) => void;
   completeSubtask: (taskId: string, subtaskId: string) => void;
+  changeTaskStatus: (id: string, status: Status) => void;
+  changeTaskLabel: (id: string, label: Label) => void;
+  assignTask: (id: string, assignee: string) => void;
+  addTaskNote: (id: string, note: string) => void;
+  setEstimatedTime: (id: string, minutes: number) => void;
+  addTaskTag: (id: string, tag: string) => void;
+  removeTaskTag: (id: string, tag: string) => void;
 }
 
 export const useTaskStore = create<TaskState>()(
@@ -27,6 +34,7 @@ export const useTaskStore = create<TaskState>()(
           description,
           completed: false,
           priority,
+          status: 'todo',
           dueDate,
           subtasks: [],
           createdAt: new Date(),
@@ -60,6 +68,7 @@ export const useTaskStore = create<TaskState>()(
               ? {
                   ...task,
                   completed: !task.completed,
+                  status: !task.completed ? 'done' : 'todo',
                   subtasks: task.subtasks.map((subtask) => ({
                     ...subtask,
                     completed: !task.completed,
@@ -134,6 +143,78 @@ export const useTaskStore = create<TaskState>()(
                       : subtask
                   ),
                 }
+              : task
+          ),
+        }));
+      },
+      
+      changeTaskStatus: (id, status) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id 
+              ? { 
+                  ...task, 
+                  status,
+                  completed: status === 'done'
+                } 
+              : task
+          ),
+        }));
+      },
+      
+      changeTaskLabel: (id, label) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, label } : task
+          ),
+        }));
+      },
+      
+      assignTask: (id, assignee) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, assignedTo: assignee } : task
+          ),
+        }));
+      },
+      
+      addTaskNote: (id, note) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, notes: note } : task
+          ),
+        }));
+      },
+      
+      setEstimatedTime: (id, minutes) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, estimatedTime: minutes } : task
+          ),
+        }));
+      },
+      
+      addTaskTag: (id, tag) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id 
+              ? { 
+                  ...task, 
+                  tags: task.tags ? [...task.tags, tag] : [tag] 
+                } 
+              : task
+          ),
+        }));
+      },
+      
+      removeTaskTag: (id, tag) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id && task.tags 
+              ? { 
+                  ...task, 
+                  tags: task.tags.filter(t => t !== tag) 
+                } 
               : task
           ),
         }));

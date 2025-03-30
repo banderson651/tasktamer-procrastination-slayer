@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaskStore } from '@/store/taskStore';
-import { Task, Priority } from '@/types/task';
+import { Task, Priority, Status, Label } from '@/types/task';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Clock, Tag, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 interface TaskFormProps {
   taskId?: string;
@@ -44,24 +45,37 @@ const formSchema = z.object({
   title: z.string().min(2, { message: 'Title must be at least 2 characters' }),
   description: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']),
+  status: z.enum(['todo', 'in_progress', 'review', 'done']),
+  label: z.enum(['work', 'personal', 'education', 'health', 'finance', 'other']).optional(),
   dueDate: z.date().optional(),
+  assignedTo: z.string().optional(),
+  notes: z.string().optional(),
+  estimatedTime: z.number().optional(),
 });
 
 const TaskForm = ({ taskId }: TaskFormProps) => {
   const navigate = useNavigate();
   const { tasks, addTask, updateTask } = useTaskStore();
   const [existingTask, setExistingTask] = useState<Task | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   
   useEffect(() => {
     if (taskId) {
       const task = tasks.find(t => t.id === taskId);
       if (task) {
         setExistingTask(task);
+        setTags(task.tags || []);
         form.reset({
           title: task.title,
           description: task.description || '',
           priority: task.priority,
+          status: task.status || 'todo',
+          label: task.label,
           dueDate: task.dueDate,
+          assignedTo: task.assignedTo || '',
+          notes: task.notes || '',
+          estimatedTime: task.estimatedTime,
         });
       }
     }
@@ -73,9 +87,24 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
       title: '',
       description: '',
       priority: 'medium' as Priority,
+      status: 'todo' as Status,
       dueDate: undefined,
+      assignedTo: '',
+      notes: '',
+      estimatedTime: undefined,
     },
   });
+
+  const handleAddTag = () => {
+    if (tagInput && !tags.includes(tagInput)) {
+      setTags([...tags, tagInput]);
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    setTags(tags.filter(t => t !== tag));
+  };
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (existingTask) {
@@ -83,7 +112,13 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
         title: data.title,
         description: data.description,
         priority: data.priority,
+        status: data.status,
+        label: data.label,
         dueDate: data.dueDate,
+        assignedTo: data.assignedTo,
+        notes: data.notes,
+        estimatedTime: data.estimatedTime,
+        tags
       });
       toast.success('Task updated successfully!');
     } else {
@@ -93,6 +128,17 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
         data.priority,
         data.dueDate
       );
+      
+      // Update the additional fields that aren't in addTask params
+      updateTask(newTask.id, {
+        status: data.status,
+        label: data.label,
+        assignedTo: data.assignedTo,
+        notes: data.notes,
+        estimatedTime: data.estimatedTime,
+        tags
+      });
+      
       toast.success('Task created successfully!');
       navigate(`/tasks/${newTask.id}`);
     }
@@ -101,6 +147,22 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
       navigate(-1);
     }
   };
+
+  const statusOptions = [
+    { value: 'todo', label: 'To Do' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'review', label: 'Review' },
+    { value: 'done', label: 'Done' },
+  ];
+
+  const labelOptions = [
+    { value: 'work', label: 'Work' },
+    { value: 'personal', label: 'Personal' },
+    { value: 'education', label: 'Education' },
+    { value: 'health', label: 'Health' },
+    { value: 'finance', label: 'Finance' },
+    { value: 'other', label: 'Other' },
+  ];
 
   return (
     <Form {...form}>
@@ -181,6 +243,70 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
           
           <FormField
             control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Current progress of this task
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="label"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Label</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a label" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {labelOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Categorize your task
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
             name="dueDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
@@ -214,12 +340,126 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
                   </PopoverContent>
                 </Popover>
                 <FormDescription>
-                  Optional: when this task should be completed
+                  When this task should be completed
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="assignedTo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Assigned To</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <User className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Name of assignee"
+                      {...field}
+                      className="pl-8"
+                    />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Who is responsible for this task
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="estimatedTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estimated Time (minutes)</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Clock className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      placeholder="Time in minutes"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      className="pl-8"
+                    />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  How long will this task take
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Additional notes, links, or context..."
+                  {...field}
+                  className="min-h-20"
+                />
+              </FormControl>
+              <FormDescription>
+                Any extra information that might be helpful
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div>
+          <FormLabel>Tags</FormLabel>
+          <div className="flex gap-2 mb-2">
+            {tags.map(tag => (
+              <Badge key={tag} variant="secondary" className="px-3 py-1">
+                {tag}
+                <button 
+                  type="button" 
+                  className="ml-2 text-muted-foreground hover:text-foreground"
+                  onClick={() => handleRemoveTag(tag)}
+                >
+                  ×
+                </button>
+              </Badge>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <div className="relative flex-grow">
+              <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Add a tag"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                className="pl-8"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+              />
+            </div>
+            <Button type="button" variant="outline" onClick={handleAddTag}>
+              Add
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            Press Enter or click Add to create a tag
+          </p>
         </div>
         
         <div className="flex justify-end gap-4">
