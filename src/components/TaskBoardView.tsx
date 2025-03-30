@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/store/taskStore';
 import { Task, Status } from '@/types/task';
@@ -62,7 +61,7 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
     setHighlightedColumn(source.droppableId as Status);
   };
 
-  // Handler for creating a new task - Fixed by ensuring it navigates to the correct route
+  // Fixed: Handler for creating a new task - ensure we're using the correct route
   const handleCreateNewTask = () => {
     navigate('/tasks/new');
   };
