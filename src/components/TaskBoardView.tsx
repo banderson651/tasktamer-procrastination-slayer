@@ -48,6 +48,11 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
     toast.success(`Task moved to ${newStatus.replace('_', ' ')}`);
   };
 
+  // Handler for creating a new task
+  const handleCreateNewTask = () => {
+    navigate('/tasks/new');
+  };
+
   return (
     <div className="mt-4">
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -64,7 +69,7 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
                       </span>
                     </CardTitle>
                     {column.id === 'todo' && (
-                      <Button variant="ghost" size="sm" onClick={() => navigate('/tasks/new')}>
+                      <Button variant="ghost" size="sm" onClick={handleCreateNewTask}>
                         <Plus className="h-4 w-4" />
                       </Button>
                     )}

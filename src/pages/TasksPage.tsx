@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useTaskStore } from '@/store/taskStore';
 import { Button } from '@/components/ui/button';
@@ -45,6 +44,11 @@ const TasksPage = () => {
     return matchesSearch && matchesPriority;
   });
 
+  // Handler for creating a new task
+  const handleCreateNewTask = () => {
+    navigate('/tasks/new');
+  };
+
   return (
     <div className="container max-w-7xl mx-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -52,7 +56,7 @@ const TasksPage = () => {
           <h1 className="text-3xl font-bold">Tasks</h1>
           <p className="text-muted-foreground">Manage all your tasks in one place</p>
         </div>
-        <Button onClick={() => navigate('/tasks/new')}>
+        <Button onClick={handleCreateNewTask}>
           <Plus className="mr-2 h-4 w-4" />
           Add New Task
         </Button>
@@ -134,7 +138,7 @@ const TasksPage = () => {
                     : "You don't have any active tasks"
                   }
                 </p>
-                <Button onClick={() => navigate('/tasks/new')}>
+                <Button onClick={handleCreateNewTask}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add New Task
                 </Button>
