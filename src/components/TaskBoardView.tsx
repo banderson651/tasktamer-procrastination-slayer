@@ -61,8 +61,9 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
     setHighlightedColumn(source.droppableId as Status);
   };
 
-  // Fixed: Handler for creating a new task - ensure we're using the correct route
-  const handleCreateNewTask = () => {
+  // Correct implementation of the task creation handler using React Router
+  const handleCreateNewTask = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default form submission behavior
     navigate('/tasks/new');
   };
 
@@ -122,7 +123,12 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
                     </CardTitle>
                     <div className="flex items-center gap-1">
                       {column.id === 'todo' && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCreateNewTask}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6" 
+                          onClick={handleCreateNewTask}
+                        >
                           <Plus className="h-3.5 w-3.5" />
                         </Button>
                       )}

@@ -63,8 +63,9 @@ const TasksPage = () => {
     return matchesSearch && matchesPriority && matchesLabel;
   });
 
-  // Fixed: Handler for creating a new task - ensure we're using the correct route
-  const handleCreateNewTask = () => {
+  // Correct implementation of the task creation handler using React Router
+  const handleCreateNewTask = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default form submission behavior
     navigate('/tasks/new');
   };
 
