@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTaskStore } from '@/store/taskStore';
@@ -30,14 +29,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import TaskForm from '@/components/TaskForm';
 
 const TaskDetailPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { tasks, deleteTask, completeTask, updateTask, changeTaskStatus } = useTaskStore();
-  const [task, setTask] = useState(tasks.find(t => t.id === taskId));
+  const [task, setTask] = useState(taskId === 'new' ? null : tasks.find(t => t.id === taskId));
   
   useEffect(() => {
+    if (taskId === 'new') {
+      // New task case, don't need to find existing task
+      setTask(null);
+      return;
+    }
+    
     const foundTask = tasks.find(t => t.id === taskId);
     setTask(foundTask);
     
@@ -47,20 +53,7 @@ const TaskDetailPage = () => {
     }
   }, [taskId, tasks, navigate]);
   
-  if (!task && taskId !== 'new') {
-    return (
-      <div className="container max-w-4xl mx-auto p-4 md:p-6">
-        <div className="text-center p-8">
-          <h2 className="text-2xl font-bold mb-4">Task not found</h2>
-          <Button onClick={() => navigate('/tasks')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Tasks
-          </Button>
-        </div>
-      </div>
-    );
-  }
-  
+  // Handle the "new" task case
   if (taskId === 'new') {
     return (
       <div className="container max-w-4xl mx-auto p-4 md:p-6">
@@ -79,13 +72,28 @@ const TaskDetailPage = () => {
         
         <Card>
           <CardContent className="pt-6">
-            <TaskForm taskId={undefined} />
+            <TaskForm />
           </CardContent>
         </Card>
       </div>
     );
   }
-
+  
+  // Handle task not found case
+  if (!task) {
+    return (
+      <div className="container max-w-4xl mx-auto p-4 md:p-6">
+        <div className="text-center p-8">
+          <h2 className="text-2xl font-bold mb-4">Task not found</h2>
+          <Button onClick={() => navigate('/tasks')}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Tasks
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
   const priorityColors: Record<string, string> = {
     low: 'bg-green-100 text-green-800',
     medium: 'bg-blue-100 text-blue-800',
@@ -394,7 +402,5 @@ const TaskDetailPage = () => {
     </div>
   );
 };
-
-import TaskForm from '@/components/TaskForm';
 
 export default TaskDetailPage;

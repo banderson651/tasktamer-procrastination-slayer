@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaskStore } from '@/store/taskStore';
@@ -53,12 +52,26 @@ const formSchema = z.object({
   estimatedTime: z.number().optional(),
 });
 
-const TaskForm = ({ taskId }: TaskFormProps) => {
+const TaskForm = ({ taskId }: TaskFormProps = {}) => {
   const navigate = useNavigate();
   const { tasks, addTask, updateTask } = useTaskStore();
   const [existingTask, setExistingTask] = useState<Task | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      priority: 'medium' as Priority,
+      status: 'todo' as Status,
+      dueDate: undefined,
+      assignedTo: '',
+      notes: '',
+      estimatedTime: undefined,
+    },
+  });
   
   useEffect(() => {
     if (taskId) {
@@ -79,21 +92,7 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
         });
       }
     }
-  }, [taskId, tasks]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      priority: 'medium' as Priority,
-      status: 'todo' as Status,
-      dueDate: undefined,
-      assignedTo: '',
-      notes: '',
-      estimatedTime: undefined,
-    },
-  });
+  }, [taskId, tasks, form]);
 
   const handleAddTag = () => {
     if (tagInput && !tags.includes(tagInput)) {
@@ -144,7 +143,7 @@ const TaskForm = ({ taskId }: TaskFormProps) => {
     }
     
     if (!existingTask) {
-      navigate(-1);
+      navigate('/tasks');
     }
   };
 
