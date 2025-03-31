@@ -23,7 +23,7 @@ const TasksPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [selectedLabel, setSelectedLabel] = useState<string>('all');
-  const [viewMode, setViewMode<'list' | 'board'>('board');
+  const [viewMode, setViewMode] = useState<'list' | 'board'>('board');
   
   const incompleteTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
