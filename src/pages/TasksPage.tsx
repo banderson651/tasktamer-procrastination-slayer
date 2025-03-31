@@ -23,7 +23,7 @@ const TasksPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [selectedLabel, setSelectedLabel] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'list' | 'board'>('board');
+  const [viewMode, setViewMode<'list' | 'board'>('board');
   
   const incompleteTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
@@ -63,10 +63,11 @@ const TasksPage = () => {
     return matchesSearch && matchesPriority && matchesLabel;
   });
 
-  // Correct implementation of the task creation handler using React Router
+  // Updated implementation to ensure proper navigation
   const handleCreateNewTask = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default form submission behavior
-    navigate('/tasks/new');
+    e.stopPropagation(); // Stop event propagation
+    navigate('/tasks/new', { replace: false });
   };
 
   // All available priorities for dropdown filtering
@@ -138,7 +139,10 @@ const TasksPage = () => {
             )}
           </div>
         </div>
-        <Button onClick={handleCreateNewTask}>
+        <Button 
+          onClick={handleCreateNewTask} 
+          type="button"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add New Task
         </Button>

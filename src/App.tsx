@@ -33,7 +33,7 @@ const App = () => (
                 <Routes>
                   <Route path="dashboard" element={<HomePage />} />
                   <Route path="tasks" element={<TasksPage />} />
-                  <Route path="tasks/new" element={<TaskDetailPage />} />
+                  <Route path="tasks/new" element={<TaskDetailPage isNew={true} />} />
                   <Route path="tasks/:taskId" element={<TaskDetailPage />} />
                   <Route path="tasks/:taskId/edit" element={<TaskEditPage />} />
                   <Route path="scheduled" element={<ScheduledPage />} />

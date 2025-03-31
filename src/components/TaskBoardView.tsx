@@ -31,7 +31,7 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
   const getTasksByStatus = (status: Status) => {
     return tasks.filter(task => task.status === status);
   };
-
+  
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     setHighlightedColumn(null);
@@ -61,10 +61,11 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
     setHighlightedColumn(source.droppableId as Status);
   };
 
-  // Correct implementation of the task creation handler using React Router
+  // Updated implementation to ensure proper navigation
   const handleCreateNewTask = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default form submission behavior
-    navigate('/tasks/new');
+    e.stopPropagation(); // Stop event propagation
+    navigate('/tasks/new', { replace: false });
   };
 
   // Filter options for future implementation
@@ -96,7 +97,13 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="default" size="sm" className="h-8" onClick={handleCreateNewTask}>
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="h-8" 
+            onClick={handleCreateNewTask}
+            type="button"
+          >
             <Plus className="h-4 w-4 mr-1" /> Add Task
           </Button>
         </div>
@@ -128,6 +135,7 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
                           size="icon" 
                           className="h-6 w-6" 
                           onClick={handleCreateNewTask}
+                          type="button"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </Button>
@@ -199,7 +207,10 @@ const TaskBoardView = ({ tasks }: { tasks: Task[] }) => {
           <p className="text-muted-foreground mb-4">
             Create your first task to get started with your Kanban board
           </p>
-          <Button onClick={handleCreateNewTask}>
+          <Button 
+            onClick={handleCreateNewTask}
+            type="button"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Create First Task
           </Button>

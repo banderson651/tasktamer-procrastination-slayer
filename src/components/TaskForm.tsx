@@ -90,9 +90,27 @@ const TaskForm = ({ taskId }: TaskFormProps = {}) => {
           notes: task.notes || '',
           estimatedTime: task.estimatedTime,
         });
+      } else {
+        // Handle case where task is not found but ID was provided
+        toast.error("Task not found");
+        navigate('/tasks', { replace: true });
       }
+    } else {
+      // This is a new task, reset the form to defaults
+      setExistingTask(null);
+      setTags([]);
+      form.reset({
+        title: '',
+        description: '',
+        priority: 'medium' as Priority,
+        status: 'todo' as Status,
+        dueDate: undefined,
+        assignedTo: '',
+        notes: '',
+        estimatedTime: undefined,
+      });
     }
-  }, [taskId, tasks, form]);
+  }, [taskId, tasks, form, navigate]);
 
   const handleAddTag = () => {
     if (tagInput && !tags.includes(tagInput)) {
@@ -120,6 +138,7 @@ const TaskForm = ({ taskId }: TaskFormProps = {}) => {
         tags
       });
       toast.success('Task updated successfully!');
+      navigate(`/tasks/${existingTask.id}`);
     } else {
       const newTask = addTask(
         data.title,
@@ -140,10 +159,6 @@ const TaskForm = ({ taskId }: TaskFormProps = {}) => {
       
       toast.success('Task created successfully!');
       navigate(`/tasks/${newTask.id}`);
-    }
-    
-    if (!existingTask) {
-      navigate('/tasks');
     }
   };
 
